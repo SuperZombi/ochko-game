@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Document</title>
+	<meta name='viewport' content='width=device-width'>
+	<style>
+
+
+html, body{padding: 0; margin: 0;font-family: sans-serif; font-size: 14pt;}
+#fullscreener{
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background: rgb(0, 0, 0, 0.75);
+	backdrop-filter: blur(5px);
+	color: white;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 20px;
+	text-align: center;
+	display: none;
+}
+#fullscreener svg{
+	height: 100px;
+}
+#main-area{
+	height: 100dvh;
+	display: grid;
+	grid-template-rows: 0.5fr 1fr 0.5fr;
+	grid-template-columns: 0.4fr 1fr 0.4fr;
+	gap: 10px;
+}
+#table{
+	grid-column-start: 2;
+	grid-row-start: 2;
+	background: lightblue;
+	display: grid;
+	grid-template-rows: 0.5fr 1fr 0.5fr;
+	grid-template-columns: 0.4fr 1fr 0.4fr;
+}
+#player1{
+	grid-column-start: 2;
+	grid-row-start: 3;
+}
+#player2{
+	grid-column-start: 2;
+}
+#player3{
+	grid-row-start: 1;
+	grid-row-end: 4;
+}
+#player4{
+	grid-column-start: 3;
+	grid-row-start: 1;
+	grid-row-end: 4;
+}
+
+.player{
+	display: flex;
+	justify-content: center;
+	gap: 5px;
+}
+.player > *{
+	height: 100%;
+	width: 100%;
+	max-width: 200px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+#player3.player, #player4.player{
+	flex-direction: column;
+}
+#player4.player{
+	align-items: flex-end;
+}
+#player3.player > *, #player4.player > *{
+	max-height: 200px;
+	max-width: 80%;
+}
+
+.player .player-cards{
+	border: 3px dashed brown;
+	box-sizing: border-box;
+}
+.player.top .player-cards{
+	border-top: none;
+}
+.player.bottom .player-cards{
+	border-bottom: none;
+}
+.player.left .player-cards{
+	border-left: none;
+}
+.player.right .player-cards{
+	border-right: none;
+}
+.player .player-dibs .circle{
+	background: #890dfb;
+	color: white;
+	width: 100px;
+	height: 100px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+#table #current-card{
+	grid-column-start: 2;
+	grid-row-start: 1;
+	grid-row-end: 4;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-height: 400px;
+}
+#table #current-card .card{
+	background: brown;
+	min-width: 160px;
+	max-width: 40%;
+	min-height: 240px;
+}
+#table .player-bid{
+	background: #890dfb;
+	color: white;
+	width: 60px;
+	height: 60px;
+	border-radius: 50px;
+	margin: auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+#table #player1-bid{
+	grid-column-start: 2;
+	grid-row-start: 3;
+}
+#table #player2-bid{
+	grid-column-start: 2;
+	grid-row-start: 1;
+}
+#table #player3-bid{
+	grid-row-start: 1;
+	grid-row-end: 4;
+}
+#table #player4-bid{
+	grid-column-start: 3;
+	grid-row-start: 1;
+	grid-row-end: 4;
+}
+#table .player-bid.bottom{
+	margin-bottom: 10px;
+}
+#table .player-bid.top{
+	margin-top: 10px;
+}
+#table .player-bid.left{
+	margin-left: clamp(10px, 10%, 20px);
+}
+#table .player-bid.right{
+	margin-right: clamp(10px, 10%, 20px);
+}
+
+@media (max-width: 500px){
+	#fullscreener{
+		display: flex;
+	}
+}
+@media (max-height: 500px){
+	#table .player-bid{
+		width: 40px;
+		height: 40px;
+	}
+	#table #current-card{
+		min-height: 200px;
+	}
+	#table #current-card .card{
+		min-width: 80px;
+		min-height: 110px;
+	}
+	#table .player-bid.bottom{
+		margin-bottom: 0;
+	}
+	#table .player-bid.top{
+		margin-top: 0;
+	}
+
+	.player > *{
+		max-width: 120px;
+	}
+	#player3.player > *, #player4.player > *{
+		max-height: 120px;
+	}
+	.player .player-dibs .circle{
+		width: 70px;
+		height: 70px;
+	}
+}
+
+
+
+	</style>
+</head>
+<body>
+	<div id="fullscreener">
+		<h1>Flip your screen</h1>
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+			<path fill="white" fill-rule="evenodd" d="M16.5 2.5c3.3 1.5 5.6 4.7 6 8.5H24c-.6-6.2-5.7-11-12-11h-.7l3.8 3.8 1.4-1.3Zm-6.3-.8c-.6-.6-1.5-.6-2.1 0L1.7 8.1c-.6.6-.6 1.5 0 2.1l12 12c.6.6 1.5.6 2.1 0l6.4-6.4c.6-.6.6-1.5 0-2.1l-12-12Zm4.6 19.5-12-12 6.4-6.4 12 12-6.4 6.4Zm-7.3.3c-3.3-1.5-5.6-4.7-6-8.5H.1C.6 19.2 5.7 24 12 24h.7l-3.8-3.8-1.4 1.3Z"/>
+		</svg>
+	</div>
+	<div id="main-area">
+		<div id="table">
+			<div id="current-card"><div class="card"></div></div>
+			<div id="player1-bid" class="player-bid bottom">1</div>
+			<div id="player2-bid" class="player-bid top">2</div>
+			<div id="player3-bid" class="player-bid left">3</div>
+			<div id="player4-bid" class="player-bid right">4</div>
+		</div>
+
+		<div id="player1" class="player bottom">
+			<div class="player-cards">0/30</div>
+			<div class="player-dibs"><div class="circle">10</div></div>
+		</div>
+		<div id="player2" class="player top">
+			<div class="player-cards">0/30</div>
+			<div class="player-dibs"><div class="circle">10</div></div>
+		</div>
+		<div id="player3" class="player left">
+			<div class="player-cards">0/30</div>
+			<div class="player-dibs"><div class="circle">10</div></div>
+		</div>
+		<div id="player4" class="player right">
+			<div class="player-cards">0/30</div>
+			<div class="player-dibs"><div class="circle">10</div></div>
+		</div>
+	</div>
+</body>
+</html>
