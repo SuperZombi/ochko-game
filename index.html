@@ -41,50 +41,78 @@ html, body{padding: 0; margin: 0;font-family: sans-serif; font-size: 14pt;}
 	grid-template-rows: 0.5fr 1fr 0.5fr;
 	grid-template-columns: 0.4fr 1fr 0.4fr;
 }
-#player1{
+#main-area .player:nth-child(2){
 	grid-column-start: 2;
 	grid-row-start: 3;
 }
-#player2{
+#main-area .player:nth-child(3){
 	grid-column-start: 2;
 }
-#player3{
+#main-area .player:nth-child(4){
 	grid-row-start: 1;
 	grid-row-end: 4;
 }
-#player4{
+#main-area .player:nth-child(5){
 	grid-column-start: 3;
 	grid-row-start: 1;
 	grid-row-end: 4;
 }
 
-.player{
+#main-area .player{
 	display: flex;
 	justify-content: center;
-	gap: 5px;
+	gap: 20px;
 }
-.player > *{
+#main-area .player > *{
 	height: 100%;
 	width: 100%;
 	max-width: 200px;
 	display: flex;
 	align-items: center;
-	justify-content: center;
 }
-#player3.player, #player4.player{
+#main-area .player:nth-child(4), #main-area .player:nth-child(5){
 	flex-direction: column;
 }
-#player4.player{
+#main-area .player:nth-child(5){
 	align-items: flex-end;
 }
-#player3.player > *, #player4.player > *{
+#main-area .player:nth-child(4) > *, #main-area .player:nth-child(5) > *{
 	max-height: 200px;
-	max-width: 80%;
+}
+
+#main-area .player .player-info{
+	display: flex;
+	gap: 10px;
+	color: white;
+	background: orange;
+	/*background-position: center center;
+	background-size: cover;*/
+	padding: 0 10px;
+	box-sizing: border-box;
+	min-width: 200px;
+	max-width: 200px;
+	max-height: 100px;
+	min-height: 100px;
+}
+#main-area .player:nth-child(2) > *, #main-area .player:nth-child(3) > *{
+	align-self: center;
+}
+#main-area .player .player-info img{
+	height: 50px;
+	width: 50px;
+	background: grey;
+	border-radius: 50px;
+}
+#main-area .player .player-info span{
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
 }
 
 .player .player-cards{
 	border: 3px dashed brown;
 	box-sizing: border-box;
+	justify-content: center;
 }
 .player.top .player-cards{
 	border-top: none;
@@ -107,6 +135,12 @@ html, body{padding: 0; margin: 0;font-family: sans-serif; font-size: 14pt;}
 	display: flex;
 	align-items: center;
 	justify-content: center;
+}
+
+.player.left .player-dibs,
+.player.right .player-dibs{
+	justify-content: center;
+	align-items: flex-start !important;
 }
 
 #table #current-card{
@@ -135,19 +169,19 @@ html, body{padding: 0; margin: 0;font-family: sans-serif; font-size: 14pt;}
 	align-items: center;
 	justify-content: center;
 }
-#table #player1-bid{
+#table .player-bid.bottom{
 	grid-column-start: 2;
 	grid-row-start: 3;
 }
-#table #player2-bid{
+#table .player-bid.top{
 	grid-column-start: 2;
 	grid-row-start: 1;
 }
-#table #player3-bid{
+#table .player-bid.left{
 	grid-row-start: 1;
 	grid-row-end: 4;
 }
-#table #player4-bid{
+#table .player-bid.right{
 	grid-column-start: 3;
 	grid-row-start: 1;
 	grid-row-end: 4;
@@ -165,7 +199,7 @@ html, body{padding: 0; margin: 0;font-family: sans-serif; font-size: 14pt;}
 	margin-right: clamp(10px, 10%, 20px);
 }
 
-@media (max-width: 500px){
+@media (max-width: 600px){
 	#fullscreener{
 		display: flex;
 	}
@@ -189,11 +223,27 @@ html, body{padding: 0; margin: 0;font-family: sans-serif; font-size: 14pt;}
 		margin-top: 0;
 	}
 
-	.player > *{
-		max-width: 120px;
+	#main-area .player{
+		gap: 10px;
 	}
-	#player3.player > *, #player4.player > *{
-		max-height: 120px;
+	#main-area .player > *{
+		max-width: 100px;
+	}
+	#main-area .player:nth-child(4) > *, #main-area .player:nth-child(5) > *{
+		max-height: 90px;
+	}
+	#main-area .player .player-info{
+		gap: 5px;
+		padding: 0 5px;
+		font-size: 0.75rem;
+		min-width: 120px;
+		max-width: 120px;
+		max-height: 60px;
+		min-height: 60px;
+	}
+	#main-area .player .player-info img{
+		height: 30px;
+		width: 30px;
 	}
 	.player .player-dibs .circle{
 		width: 70px;
@@ -215,25 +265,41 @@ html, body{padding: 0; margin: 0;font-family: sans-serif; font-size: 14pt;}
 	<div id="main-area">
 		<div id="table">
 			<div id="current-card"><div class="card"></div></div>
-			<div id="player1-bid" class="player-bid bottom">1</div>
-			<div id="player2-bid" class="player-bid top">2</div>
-			<div id="player3-bid" class="player-bid left">3</div>
-			<div id="player4-bid" class="player-bid right">4</div>
+			<div class="player-bid bottom">1</div>
+			<div class="player-bid top">2</div>
+			<div class="player-bid left">3</div>
+			<div class="player-bid right">4</div>
 		</div>
 
-		<div id="player1" class="player bottom">
+		<div class="player bottom">
+			<div class="player-info">
+				<img src="https://ui-avatars.com/api/?name=User&length=1&color=fff&background=random&bold=true&format=svg&size=512">
+				<span>User name</span>
+			</div>
 			<div class="player-cards">0/30</div>
 			<div class="player-dibs"><div class="circle">10</div></div>
 		</div>
-		<div id="player2" class="player top">
+		<div class="player top">
+			<div class="player-info">
+				<img src="https://ui-avatars.com/api/?name=User&length=1&color=fff&background=random&bold=true&format=svg&size=512">
+				<span>User name</span>
+			</div>
 			<div class="player-cards">0/30</div>
 			<div class="player-dibs"><div class="circle">10</div></div>
 		</div>
-		<div id="player3" class="player left">
+		<div class="player left">
+			<div class="player-info">
+				<img src="https://ui-avatars.com/api/?name=User&length=1&color=fff&background=random&bold=true&format=svg&size=512">
+				<span>User name</span>
+			</div>
 			<div class="player-cards">0/30</div>
 			<div class="player-dibs"><div class="circle">10</div></div>
 		</div>
-		<div id="player4" class="player right">
+		<div class="player right">
+			<div class="player-info">
+				<img src="https://ui-avatars.com/api/?name=User&length=1&color=fff&background=random&bold=true&format=svg&size=512">
+				<span>User name</span>
+			</div>
 			<div class="player-cards">0/30</div>
 			<div class="player-dibs"><div class="circle">10</div></div>
 		</div>
