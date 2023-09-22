@@ -1,0 +1,272 @@
+html, body{padding: 0; margin: 0;font-family: sans-serif; font-size: 14pt; overflow: auto;}
+#fullscreener{
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background: rgb(0, 0, 0, 0.75);
+	backdrop-filter: blur(5px);
+	color: white;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	visibility: hidden;
+	z-index: 2;
+}
+#fullscreener img{
+	height: 100px;
+}
+#game-searcher{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	gap: 8px;
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}
+#game-searcher button{
+	cursor: pointer;
+}
+#game-searcher img{
+	height: 100px;
+	transition: 0.5s;
+}
+#search_animation{
+	max-height: 150px;
+	overflow: hidden;
+	transition: 0.75s;
+}
+#search_animation.hidden{
+	max-height: 0;
+}
+#game-searcher.hide{
+	display: none;
+}
+
+#main-area{
+	height: 100dvh;
+	display: grid;
+	grid-template-rows: 0.5fr 1fr 0.5fr;
+	grid-template-columns: 0.4fr 1fr 0.4fr;
+	gap: 10px;
+}
+#main-area.hide{
+	visibility: hidden;
+}
+#table{
+	grid-column-start: 2;
+	grid-row-start: 2;
+	background: lightblue;
+	display: grid;
+	grid-template-rows: 0.5fr 1fr 0.5fr;
+	grid-template-columns: 0.4fr 1fr 0.4fr;
+}
+#main-area .player:nth-child(2){
+	grid-column-start: 2;
+	grid-row-start: 3;
+}
+#main-area .player:nth-child(3){
+	grid-column-start: 2;
+}
+#main-area .player:nth-child(4){
+	grid-row-start: 1;
+	grid-row-end: 4;
+}
+#main-area .player:nth-child(5){
+	grid-column-start: 3;
+	grid-row-start: 1;
+	grid-row-end: 4;
+}
+
+#main-area .player{
+	display: flex;
+	justify-content: center;
+	gap: 20px;
+}
+#main-area .player > *{
+	height: 100%;
+	width: 100%;
+	max-width: 200px;
+	display: flex;
+	align-items: center;
+}
+#main-area .player:nth-child(4), #main-area .player:nth-child(5){
+	flex-direction: column;
+}
+#main-area .player:nth-child(5){
+	align-items: flex-end;
+}
+#main-area .player:nth-child(4) > *, #main-area .player:nth-child(5) > *{
+	max-height: 200px;
+}
+
+#main-area .player .player-info{
+	display: flex;
+	gap: 10px;
+	color: white;
+	background: orange;
+	/*background-position: center center;
+	background-size: cover;*/
+	padding: 0 10px;
+	box-sizing: border-box;
+	min-width: 200px;
+	max-width: 200px;
+	max-height: 100px;
+	min-height: 100px;
+}
+#main-area .player:nth-child(2) > *, #main-area .player:nth-child(3) > *{
+	align-self: center;
+}
+#main-area .player .player-info img{
+	height: 50px;
+	width: 50px;
+	background: grey;
+	border-radius: 50px;
+}
+#main-area .player .player-info span{
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+.player .player-cards{
+	border: 3px dashed brown;
+	box-sizing: border-box;
+	justify-content: center;
+}
+.player:nth-child(2) .player-cards{
+	border-bottom: none;
+}
+.player:nth-child(3) .player-cards{
+	border-top: none;
+}
+.player:nth-child(4) .player-cards{
+	border-left: none;
+}
+.player:nth-child(5) .player-cards{
+	border-right: none;
+}
+.player .player-dibs .circle{
+	background: #890dfb;
+	color: white;
+	width: 100px;
+	height: 100px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.player:nth-child(4) .player-dibs,
+.player:nth-child(5) .player-dibs{
+	justify-content: center;
+	align-items: flex-start !important;
+}
+
+#table #current-card{
+	grid-column-start: 2;
+	grid-row-start: 1;
+	grid-row-end: 4;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-height: 400px;
+}
+#table #current-card .card{
+	background: brown;
+	min-width: 160px;
+	max-width: 40%;
+	min-height: 240px;
+}
+#table .player-bid{
+	background: #890dfb;
+	color: white;
+	width: 60px;
+	height: 60px;
+	border-radius: 50px;
+	margin: auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+#table .player-bid:nth-child(2){
+	grid-column-start: 2;
+	grid-row-start: 3;
+	margin-bottom: 10px;
+}
+#table .player-bid:nth-child(3){
+	grid-column-start: 2;
+	grid-row-start: 1;
+	margin-top: 10px;
+}
+#table .player-bid:nth-child(4){
+	grid-row-start: 1;
+	grid-row-end: 4;
+	margin-left: clamp(10px, 10%, 20px);
+}
+#table .player-bid:nth-child(5){
+	grid-column-start: 3;
+	grid-row-start: 1;
+	grid-row-end: 4;
+	margin-right: clamp(10px, 10%, 20px);
+}
+
+
+@media (max-width: 600px){
+	#fullscreener{
+		visibility: visible;
+	}
+}
+@media (max-height: 500px){
+	#table .player-bid{
+		width: 40px;
+		height: 40px;
+	}
+	#table #current-card{
+		min-height: 200px;
+	}
+	#table #current-card .card{
+		min-width: 80px;
+		min-height: 110px;
+	}
+	#table .player-bid:nth-child(2){
+		margin-bottom: 0;
+	}
+	#table .player-bid:nth-child(3){
+		margin-top: 0;
+	}
+
+	#main-area .player{
+		gap: 10px;
+	}
+	#main-area .player > *{
+		max-width: 100px;
+	}
+	#main-area .player:nth-child(4) > *, #main-area .player:nth-child(5) > *{
+		max-height: 90px;
+	}
+	#main-area .player .player-info{
+		gap: 5px;
+		padding: 0 5px;
+		font-size: 0.75rem;
+		min-width: 120px;
+		max-width: 120px;
+		max-height: 60px;
+		min-height: 60px;
+	}
+	#main-area .player .player-info img{
+		height: 30px;
+		width: 30px;
+	}
+	.player .player-dibs .circle{
+		width: 70px;
+		height: 70px;
+	}
+}
