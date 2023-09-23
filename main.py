@@ -101,19 +101,18 @@ def register_user():
 	password = request.json.get('password')
 
 	if not username or not password:
-		return jsonify({'successfully': False, 'reason': 'Both username and password are required'}), 400
+		return jsonify({'successfully': False, 'reason': 'Both username and password are required'})
 
 	DB.execute('SELECT * FROM users WHERE name = ?', (username,))
 	existing_user = DB.fetchone()
 	
 	if existing_user:
-		return jsonify({'successfully': 'Username already exists'}), 409
+		return jsonify({'successfully': False, 'target': "username", 'reason': 'Username already exists'})
 
 	hashed_password = hashlib.md5(password.encode('utf-8')).hexdigest()
 
 	DB.execute('INSERT INTO users (name, password) VALUES (?, ?)', (username, hashed_password))
 	conn.commit()
-
 	return jsonify({'successfully': True})
 	
 	
@@ -123,18 +122,18 @@ def login():
 	password = request.json.get('password')
 
 	if not username or not password:
-		return jsonify({'successfully': False, 'reason': 'Both username and password are required'}), 400
+		return jsonify({'successfully': False, 'reason': 'Both username and password are required'})
 
 	hashed_password = hashlib.md5(password.encode('utf-8')).hexdigest()
 
-	# Проверка введенных данных и выполнение входа
 	DB.execute('SELECT * FROM users WHERE name = ? AND password = ?', (username, hashed_password))
 	user = DB.fetchone()
-
 	if user:
-		return jsonify({'Successfully': True, 'data': user})
+		column_names = [column[0] for column in DB.description]
+		user_info = dict(zip(column_names, user))
+		return jsonify({'successfully': True, 'data': user_info})
 	else:
-		return jsonify({'successfully': False, 'reason': 'Invalid username or password'}), 401
+		return jsonify({'successfully': False, 'reason': 'Invalid username or password'})
 
 
 @socketio.on('connect')
@@ -169,5 +168,3 @@ if __name__ == '__main__':
 	socketio.run(app, debug=True)
 	# print("Running...")
 	# socketio.run(app, host='0.0.0.0', port=80)
-
-

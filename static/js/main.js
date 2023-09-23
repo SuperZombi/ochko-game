@@ -7,7 +7,7 @@ function login(){
 	xhr.open("POST", `/${form_action}`)
 	xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
 	xhr.onload = _=>{
-		if (xhr.status == 200){ 
+		if (xhr.status == 200){
 			let answer = JSON.parse(xhr.response);
 			if (answer.successfully){
 				document.querySelector("#login-area").classList.add("hide")
@@ -15,8 +15,17 @@ function login(){
 				document.querySelector("#game-searcher #username").value = username
 				console.log(answer.data)
 			}
-		} else{
-			alert(answer.reason)
+			else{
+				let input = document.querySelector(`#login-area input[name='${answer.target}']`)
+				if (input){
+					input.setCustomValidity(answer.reason);
+					input.reportValidity();
+					setTimeout(()=>{input.setCustomValidity('')}, 3000)
+				}
+				else{
+					alert(answer.reason)
+				}
+			}
 		}
 	}
 	xhr.send(JSON.stringify({'username': username, 'password': password}))
