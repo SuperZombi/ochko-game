@@ -10,12 +10,12 @@ function login(){
 		if (xhr.status == 200){
 			let answer = JSON.parse(xhr.response);
 			if (answer.successfully){
-				setCookie('username', username)
-				setCookie('password', password)
+				let user_data = answer.data;
+				setCookie('username', user_data.username)
+				setCookie('password', user_data.password)
 				document.querySelector("#login-area").classList.add("hide")
 				document.querySelector("#game-searcher").classList.remove("hide")
 				document.querySelector("#game-searcher #username").value = username
-				console.log(answer.data)
 			}
 			else{
 				let input = document.querySelector(`#login-area input[name='${answer.target}']`)

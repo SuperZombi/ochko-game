@@ -109,7 +109,9 @@ def register_user():
 
 	DB.execute('INSERT INTO users (name, password) VALUES (?, ?)', (username, hashed_password))
 	conn.commit()
-	return jsonify({'successfully': True})
+	
+	userdata = {"username": username, "password": hashed_password}
+	return jsonify({'successfully': True, 'data': userdata})
 	
 	
 @app.route('/login', methods=['POST'])
