@@ -10,6 +10,8 @@ function login(){
 		if (xhr.status == 200){
 			let answer = JSON.parse(xhr.response);
 			if (answer.successfully){
+				setCookie('username', username)
+				setCookie('password', password)
 				document.querySelector("#login-area").classList.add("hide")
 				document.querySelector("#game-searcher").classList.remove("hide")
 				document.querySelector("#game-searcher #username").value = username
@@ -53,10 +55,7 @@ function search_game(){
 		}
 		document.querySelector("#game-searcher [type=submit]").innerHTML = "Cancel"
 
-		socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port,
-			{ query: `username=${username}` }
-			// extraHeaders: { Icon: null }
-		);
+		socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
 		socket.on('connected', function(queue_id) {
 			ROOM_ID = queue_id
 		});
@@ -98,4 +97,27 @@ function main_game(users){
 	document.querySelector("#game-searcher").classList.add("hide")
 	document.querySelector("#main-area").classList.remove("hide")
 	console.log(users)
+}
+
+function setCookie(name, value, options = {}) {
+	let age_time = Math.floor(new Date().getTime() / 1000) + (365 * 24 * 60 * 60);
+	options = {path: '/', 'max-age': age_time, ...options};
+	let updatedCookie = name + "=" + value;
+	for (let optionKey in options) {
+		updatedCookie += "; " + optionKey;
+		let optionValue = options[optionKey];
+		updatedCookie += "=" + optionValue;
+	}
+	document.cookie = updatedCookie;
+}
+function deleteCookie(name){
+	setCookie(name, "", {'max-age': -1})
+}
+function getCookie(name) {
+	let cookie = {};
+	document.cookie.split(';').forEach(function(el) {
+		let [k,v] = el.split('=');
+		cookie[k.trim()] = v;
+	})
+	return cookie[name];
 }

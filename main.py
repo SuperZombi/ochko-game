@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, abort, jsonify
 from flask_cors import CORS
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, ConnectionRefusedError
 import hashlib
 import time
 import re
@@ -82,10 +82,6 @@ class Room():
 		return f"Room({self.users})"
 
 
-QUEUE = {}
-ActiveGames = {}
-
-
 def serialize(arr):
 	return json.loads(json.dumps(arr, default=lambda cls: cls.json()))
 
@@ -136,14 +132,19 @@ def login():
 		return jsonify({'successfully': False, 'reason': 'Invalid username or password'})
 
 
+QUEUE = {}
+ActiveGames = {}
+
+
 @socketio.on('connect')
 def search_game():
-	username = request.args.get('username')
-	if not username:
+	username = request.cookies.get("username")
+	password = request.cookies.get('password')
+
+	if not username or not password:
 		raise ConnectionRefusedError('Unauthorized!')
 
-	icon = request.headers.get("icon")
-	user = User(username, request.sid, icon=icon)
+	user = User(username, request.sid)
 
 	if len(QUEUE) == 0:
 		room_id = hashlib.md5(str(int(time.time())).encode('utf-8')).hexdigest()
