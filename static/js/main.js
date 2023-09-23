@@ -13,17 +13,10 @@ function login(){
 				document.querySelector("#login-area").classList.add("hide")
 				document.querySelector("#game-searcher").classList.remove("hide")
 				document.querySelector("#game-searcher #username").value = username
+				console.log(answer.data)
 			}
 		} else{
-			let input = document.querySelector(`#login-area input[name='${answer.target}']`)
-			if (input){
-				input.setCustomValidity(answer.reason);
-				input.reportValidity();
-				input.onkeydown = _=> input.setCustomValidity('');
-			}
-			else{
-				alert(answer.reason)
-			}
+			alert(answer.reason)
 		}
 	}
 	xhr.send(JSON.stringify({'username': username, 'password': password}))
