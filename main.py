@@ -7,10 +7,25 @@ import re
 import json
 from threading import Timer
 
+from flask import request, jsonify
+import sqlite3
+import bcrypt
+
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 CORS(app)
 socketio = SocketIO(app)
+
+with sqlite3.connect('database/users.db') as conn:
+	c = conn.cursor()
+	c.execute('''
+		CREATE TABLE IF NOT EXISTS "users" (
+			"id"                  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			"name"                TEXT NOT NULL,
+			"password"            TEXT NOT NULL
+		);
+	''')
+	conn.commit()
 
 
 class User():
@@ -81,7 +96,10 @@ def serialize(arr):
 @app.route('/')
 def index():
 	return render_template('index.html')
-
+    
+@app.route('/register', methods=['GET'])
+def show_registration_form():
+    return render_template('register.html')
 
 @socketio.on('connect')
 def search_game():
@@ -111,8 +129,56 @@ def leave_queue(room_id):
 	if room:
 		room.remove(lambda user: user.id != request.sid)
 
+@app.route('/register', methods=['POST'])
+def register_user():
+    data = request.get_json()
+
+    if 'username' not in data or 'password' not in data:
+        return jsonify({'successfully': 'Both username and password are required'}), 400
+
+    username = data['username']
+    password = data['password']
+
+    c.execute('SELECT * FROM users WHERE name = ?', (username,))
+    existing_user = c.fetchone()
+    
+    if existing_user:
+        return jsonify({'successfully': 'Username already exists'}), 409
+
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+    c.execute('INSERT INTO users (name, password) VALUES (?, ?)', (username, hashed_password))
+    conn.commit()
+
+    return jsonify({'successfully': true}), 201
+    
+    
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+
+    if not data:
+        return jsonify({'successfully': 'Invalid JSON data in the request'}), 400
+
+    if 'username' not in data or 'password' not in data:
+        return jsonify({'successfully': 'Both username and password are required'}), 400
+
+    username = data['username']
+    password = data['password']
+
+    # Проверка введенных данных и выполнение входа
+    c.execute('SELECT * FROM users WHERE name = ? AND password = ?', (username,password,))
+    user = c.fetchone()
+
+    if user:
+        login_user(user)
+        return jsonify({'Successfully': true}), 200
+    else:
+        return jsonify({'successfully': 'Invalid username or password'}), 401
 
 if __name__ == '__main__':
 	socketio.run(app, debug=True)
 	# print("Running...")
 	# socketio.run(app, host='0.0.0.0', port=80)
+
+
