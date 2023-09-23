@@ -13,8 +13,19 @@
 		<h1>Flip your screen</h1>
 		<img src="/static/images/flip.svg">
 	</div>
-	<form id="game-searcher" onsubmit="search_game();return false">
-		<input type="text" placeholder="Name" id="username" required>
+	<form id="login-area" onsubmit="login();return false">
+		<div class="form_action">
+			<input label="Login" type="radio" name="form_action" value="login" checked>
+			<input label="Register" type="radio" name="form_action" value="register">
+		</div>
+		
+		<input type="text" name="username" placeholder="username" required>
+		<input type="password" name="password" placeholder="password" minlength="4" required>
+		<button type="submit">OK</button>
+	</form>
+
+	<form id="game-searcher" onsubmit="search_game();return false" class="hide">
+		<input type="text" placeholder="Name" id="username" readonly required>
 		<button type="submit">Search Game</button>
 		<div id="search_animation" class="hidden">
 			<img src="/static/images/loading.svg">
