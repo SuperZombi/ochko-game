@@ -1,0 +1,39 @@
+#login-area{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	gap: 8px;
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}
+#login-area .form_action{
+	margin-bottom: 5px;
+}
+#login-area [type=radio] {
+	display: inline-block;
+	appearance: none;
+	outline: none;
+	cursor: pointer;
+	border-radius: 5px;
+	padding: 4px 12px;
+	font-size: 14px;
+	transition: all 0.1s linear;
+	outline: 1px solid rgb(0, 0, 0, 0.1);
+}
+#login-area [type=radio]:checked {
+	box-shadow: 0 1px 4px green;
+	text-shadow: 0 1px 1px #79485f7a;
+}
+#login-area [type=radio]:before {
+	content: attr(label);
+	display: inline-block;
+	text-align: center;
+	width: 100%;
+}
+#login-area.hide{
+	display: none;
+}
