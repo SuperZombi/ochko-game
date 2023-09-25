@@ -29,6 +29,8 @@ def index():
 	if not username or not password:
 		return redirect("/login")
 
+	# user_info = get_user(DB, username)
+
 	return render_template('index.html', username=username)
 
 
@@ -72,12 +74,9 @@ def login():
 	result = DB.execute('SELECT * FROM users WHERE name = ? AND password = ?', (username, hashed_password))
 	user = result.fetchone()
 	if user:
-		column_names = [column[0] for column in result.description]
-		user_info = dict(zip(column_names, user))
-
 		resp = make_response(jsonify({'successfully': True}))
-		resp.set_cookie('username', user_info.get("name"))
-		resp.set_cookie('password', user_info.get("password"))
+		resp.set_cookie('username', username)
+		resp.set_cookie('password', hashed_password)
 		return resp
 	else:
 		return jsonify({'successfully': False, 'reason': 'Invalid username or password'})

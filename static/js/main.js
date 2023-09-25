@@ -1,33 +1,40 @@
+window.onload = _=>{
+	window.addEventListener("scroll", _=>{
+		if (window.scrollY >= 200){
+			document.querySelector("#wrapper").classList.add("scrolled")
+		} else{
+			document.querySelector("#wrapper").classList.remove("scrolled")
+		}
+	})
+}
+
 var timer;
 var socket;
 var ROOM_ID;
 var gameFounded = false;
 function search_game(){
-	let username = document.querySelector("#game-searcher #username").value.trim();
-	if (username){
-		document.querySelector("#search_animation").classList.remove("hidden")
-		timer = searchTimer()
+	document.querySelector("#search_animation").classList.remove("hidden")
+	timer = searchTimer()
 
-		document.querySelector("#game-searcher").onsubmit = _=>{
-			document.querySelector("#search_animation").classList.add("hidden")
-			clearTimeout(timer)
-			document.querySelector("#game-searcher").onsubmit = _=>{search_game();return false;}
-			document.querySelector("#game-searcher [type=submit]").innerHTML = "Search Game"
-			socket.emit("leave_queue", ROOM_ID)
-			setTimeout(_=>{socket.disconnect()}, 100)
-			return false;
-		}
-		document.querySelector("#game-searcher [type=submit]").innerHTML = "Cancel"
-
-		socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
-		socket.on('connected', function(queue_id) {
-			ROOM_ID = queue_id
-		});
-		socket.on('game_created', function(users) {
-			gameFounded = true;
-			main_game(users)
-		});
+	document.querySelector("#game-searcher").onsubmit = _=>{
+		document.querySelector("#search_animation").classList.add("hidden")
+		clearTimeout(timer)
+		document.querySelector("#game-searcher").onsubmit = _=>{search_game();return false;}
+		document.querySelector("#game-searcher [type=submit]").innerHTML = "Search Game"
+		socket.emit("leave_queue", ROOM_ID)
+		setTimeout(_=>{socket.disconnect()}, 100)
+		return false;
 	}
+	document.querySelector("#game-searcher [type=submit]").innerHTML = "Cancel"
+
+	socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+	socket.on('connected', function(queue_id) {
+		ROOM_ID = queue_id
+	});
+	socket.on('game_created', function(users) {
+		gameFounded = true;
+		main_game(users)
+	});
 }
 window.onbeforeunload = _=> {
 	if (socket && socket.connected){
@@ -58,7 +65,7 @@ function searchTimer(){
 }
 
 function main_game(users){
-	document.querySelector("#game-searcher").classList.add("hide")
+	document.querySelector("#profile-area").classList.add("hide")
 	document.querySelector("#main-area").classList.remove("hide")
 	console.log(users)
 }

@@ -5,24 +5,44 @@
 	<meta name='viewport' content='width=device-width'>
 	<meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
 	<link rel="stylesheet" type="text/css" href="/static/css/main.css">
+	<link rel="stylesheet" type="text/css" href="/static/css/profile.css">
+	<link rel="stylesheet" type="text/css" href="/static/css/game.css">
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.1/socket.io.js" defer></script>
 	<script src="/static/js/main.js"></script>
 </head>
 <body>
-	<div id="fullscreener">
-		<h1>Flip your screen</h1>
-		<img src="/static/images/flip.svg">
+	<div id="profile-area">
+		<div id="header">
+			<div class="header-background"></div>
+		</div>
+
+		<div id="wrapper">
+			<div id="user-info">
+				<img src="https://ui-avatars.com/api/?name={{username}}&length=1&color=fff&background=random&bold=true&format=svg&size=512" class="avatar">
+				<h1 class="username">{{username}}</h1>
+			</div>
+			<div id="fixed-header">
+				<img src="https://ui-avatars.com/api/?name={{username}}&length=1&color=fff&background=random&bold=true&format=svg&size=512" class="avatar">
+				<h2 class="username">{{username}}</h2>
+			</div>
+
+			<form id="game-searcher" onsubmit="search_game();return false">
+				<button type="submit">Search Game</button>
+				<div id="search_animation" class="hidden">
+					<img src="/static/images/loading.svg">
+					<div id="search_timer" align="center">00:00</div>
+				</div>
+			</form>
+			<!-- -->
+		</div>
 	</div>
 
-	<form id="game-searcher" onsubmit="search_game();return false">
-		<input type="text" placeholder="Name" value="{{username}}" id="username" readonly required>
-		<button type="submit">Search Game</button>
-		<div id="search_animation" class="hidden">
-			<img src="/static/images/loading.svg">
-			<div id="search_timer" align="center">00:00</div>
-		</div>
-	</form>
 	<div id="main-area" class="hide">
+		<div id="fullscreener">
+			<h1>Flip your screen</h1>
+			<img src="/static/images/flip.svg">
+		</div>
+
 		<div id="table">
 			<div id="current-card"><div class="card"></div></div>
 			<div class="player-bid">1</div>

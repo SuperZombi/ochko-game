@@ -81,3 +81,9 @@ class Database():
 		if commit:
 			self.conn.commit()
 		return cursor
+
+def get_user(db, username):
+	result = db.execute('SELECT * FROM users WHERE name = ?', (username,))
+	user = result.fetchone()
+	column_names = [column[0] for column in result.description]
+	return dict(zip(column_names, user))
