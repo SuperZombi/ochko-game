@@ -6,10 +6,10 @@ import json
 
 class User():
 	CONTEXT = None
-	def __init__(self, name, id_, icon=None):
+	def __init__(self, name, id_, avatar=None):
 		self.name = name
 		self.id = id_
-		self.icon = icon if icon else f"https://ui-avatars.com/api/?name={name}&length=1&color=fff&background=random&bold=true&format=svg&size=512"
+		self.avatar = avatar if avatar else f"https://ui-avatars.com/api/?name={name}&length=1&color=fff&background=random&bold=true&format=svg&size=512"
 
 	def receive_message(self, event, message):
 		with self.CONTEXT:
@@ -30,7 +30,7 @@ class Room():
 		self.id = id_
 		self.users = []
 		self.waitPlayers = True
-		self.timer = Timer(10, self.timerEnd)
+		self.timer = Timer(5, self.timerEnd)
 		self.timer.start()
 
 	def add(self, user):
@@ -55,7 +55,8 @@ class Room():
 	def startGame(self):
 		del self.QUEUE[self.id]
 		for user in self.users:
-			user.receive_message("game_created", serialize(self.users))
+			opponents = [i for i in self.users if i.name != user.name]
+			user.receive_message("game_created", {"opponents": serialize(opponents), "me": serialize(user)})
 		self.ActiveGames[self.id] = self
 
 
