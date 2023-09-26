@@ -6,6 +6,9 @@ window.onload = _=>{
 			document.querySelector("#wrapper").classList.remove("scrolled")
 		}
 	})
+	// main_game({"me": {"name": "User 1"},
+	// 		   "opponents": [{"name": "User 2"}, {"name": "User 3"}, {"name": "User 4"}]
+	// })
 }
 
 var timer;
@@ -93,6 +96,33 @@ function add_user(user){
 	el.dibs = val=>{el.querySelector(".player-dibs").setAttribute("value", val)}
 	el.bid = val=>{
 		if (val == 0){bid.innerHTML = ""}
+		if (val == -1){bid.innerHTML = "X"}
 		else{bid.innerHTML = val}
+	}
+
+	let playerTurnAnimation;
+	el.playerTurn = _=>{
+		bid.classList.add("waiting")
+		bid.innerHTML = "..."
+
+		let full_seconds = 30;
+		function renderTimer(remaining){
+			let percent = (remaining * 100) / (full_seconds * 1000);
+			bid.style.setProperty('--percent', percent + "%");
+			if (remaining > 0){
+				playerTurnAnimation = setTimeout(_=>{
+					renderTimer(remaining - 50)
+				}, 50)
+			}
+		}
+		renderTimer(full_seconds * 1000)
+	}
+	el.playerTurnStop = _=>{
+		if (playerTurnAnimation){
+			clearTimeout(playerTurnAnimation)
+			bid.classList.remove("waiting")
+			bid.innerHTML = ""
+			bid.style.removeProperty('--percent');
+		}
 	}
 }
