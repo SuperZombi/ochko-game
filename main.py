@@ -84,6 +84,7 @@ def login():
 
 @socketio.on('connect')
 def search_game():
+	# TODO: add to DataBase socket_id
 	username = request.cookies.get("username")
 	password = request.cookies.get('password')
 
@@ -107,9 +108,31 @@ def search_game():
 
 @socketio.on('leave_queue')
 def leave_queue(room_id):
+	# TODO: DataBase socket_id
 	room = Room.QUEUE[room_id]
 	if room:
 		room.remove(lambda user: user.id != request.sid)
+
+
+@socketio.on('event')
+def game_event(data):
+	# TODO: DataBase socket_id
+	username = request.cookies.get("username")
+	password = request.cookies.get('password')
+	if not username or not password:
+		raise ConnectionRefusedError('Unauthorized!')
+
+	result = {"successfully": False, 'reason': "Room does not exist!"}
+
+	room = Room.ActiveGames[data['room']]
+	if room:
+		user = User(username, request.sid)
+		user_exists = room.contains(user)
+		if user_exists:
+			result = room.event(data, from_user=user_exists)
+
+	return result
+
 
 if __name__ == '__main__':
 	socketio.run(app, debug=True)

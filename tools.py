@@ -3,6 +3,7 @@ from flask_socketio import emit
 import sqlite3
 from threading import Timer
 import json
+import random
 
 class User():
 	CONTEXT = None
@@ -10,6 +11,9 @@ class User():
 		self.name = name
 		self.id = id_
 		self.avatar = avatar if avatar else f"https://ui-avatars.com/api/?name={name}&length=1&color=fff&background=random&bold=true&format=svg&size=512"
+
+	def __eq__(self, other):
+		return self.id == other.id and self.name == other.name
 
 	def receive_message(self, event, message):
 		with self.CONTEXT:
@@ -54,14 +58,74 @@ class Room():
 
 	def startGame(self):
 		del self.QUEUE[self.id]
-		for user in self.users:
-			opponents = [i for i in self.users if i.name != user.name]
-			user.receive_message("game_created", {"opponents": serialize(opponents), "me": serialize(user)})
-		self.ActiveGames[self.id] = self
+		self.ActiveGames[self.id] = Game(self)
 
 
 	def __repr__(self):
 		return f"Room({self.users})"
+
+
+class Game():
+	cards = [6, 7, 8, 9, 10, 11, 12]
+	def __init__(self, room):
+		self.id = room.id
+		self.users = room.users
+
+		for user in self.users:
+			user.coins = 10
+			opponents = [i for i in self.users if i.name != user.name]
+			user.receive_message("game_created", {"opponents": serialize(opponents), "me": serialize(user)})
+
+		self.current_first_user = random.choice(self.users)
+		self.new_phase(True)
+
+	def contains(self, user_to_find):
+		filtered_users = filter(lambda user: user == user_to_find, self.users)
+		found_user = next(filtered_users, None)
+		return found_user if found_user else False
+
+	def next_user(self, current_user):
+		current_index = self.users.index(current_user)
+		if current_index == len(self.users) - 1:
+			return self.users[0]
+		return self.users[current_index + 1]
+
+	def new_phase(self, game_start=False):
+		if not game_start:
+			self.current_first_user = self.next_user(self.current_first_user)
+			for user in self.users:
+				user.coins += 1
+
+		self.current_card = random.choice(self.cards)
+		self.current_user = self.current_first_user
+
+		self.send_message("new_phase", {"current_card": self.current_card,
+										"current_user": serialize(self.current_user),
+										"users": serialize(self.users)})
+
+		self.timer = Timer(30, self.switch_player)
+		self.timer.start()
+
+	def switch_player(self):
+		if self.next_user(self.current_user) == self.current_first_user:
+			return self.final_phase()
+
+		self.current_user = self.next_user(self.current_user)
+		self.send_message("switch_player", {"current_user": serialize(self.current_user)})
+
+	def final_phase(self):
+		pass
+
+	def event(self, data, from_user):
+		if data['event'] == "make_bid":
+			if self.current_user == from_user:
+				# TODO: accept user bid
+				return {"successfully": True}
+		return {"successfully": False}
+
+	def send_message(self, event, message):
+		for user in self.users:
+			user.receive_message(event, message)
 
 
 def serialize(arr):
