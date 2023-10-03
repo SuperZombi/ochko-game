@@ -24,8 +24,7 @@ function search_game(){
 		clearTimeout(timer)
 		document.querySelector("#game-searcher").onsubmit = _=>{search_game();return false;}
 		document.querySelector("#game-searcher [type=submit]").innerHTML = "Search Game"
-		socket.emit("leave_queue", ROOM_ID)
-		setTimeout(_=>{socket.disconnect()}, 100)
+		socket.disconnect()
 		return false;
 	}
 	document.querySelector("#game-searcher [type=submit]").innerHTML = "Cancel"
@@ -38,15 +37,6 @@ function search_game(){
 		gameFounded = true;
 		main_game(users)
 	});
-}
-window.onbeforeunload = _=> {
-	if (socket && socket.connected){
-		if (gameFounded){
-			// socket.emit("leave_game", ROOM_ID)
-		} else{
-			socket.emit("leave_queue", ROOM_ID)
-		}
-	}
 }
 
 function searchTimer(){

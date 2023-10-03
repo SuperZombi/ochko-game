@@ -13,7 +13,7 @@ class User():
 		self.avatar = avatar if avatar else f"https://ui-avatars.com/api/?name={name}&length=1&color=fff&background=random&bold=true&format=svg&size=512"
 
 	def __eq__(self, other):
-		return self.id == other.id and self.name == other.name
+		return self.id == other.id
 
 	def receive_message(self, event, message):
 		with self.CONTEXT:
@@ -45,8 +45,8 @@ class Room():
 		elif not self.waitPlayers:
 			self.startGame()
 
-	def remove(self, condition):
-		self.users = list(filter(condition, self.users))
+	def remove(self, user_id):
+		self.users = list(filter(lambda usr: usr.id != user_id, self.users))
 		if len(self.users) == 0:
 			del self.QUEUE[self.id]
 
@@ -69,6 +69,7 @@ class Game():
 	cards = [6, 7, 8, 9, 10, 11, 12]
 	def __init__(self, room):
 		self.id = room.id
+		self.init_users = room.users
 		self.users = room.users
 
 		for user in self.users:
@@ -142,6 +143,13 @@ class Game():
 	def finish_game(self, winer):
 		# TODO
 		pass
+
+	def remove(self, user_id):
+		target_user = self.contains(User("", user_id))
+		if self.current_user.id == target_user.id:
+			self.timer.cancel()
+			self.switch_player()
+		self.send_message("user_leave", {"from_user": serialize(target_user)})
 
 	def send_message(self, event, message):
 		for user in self.users:
