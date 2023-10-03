@@ -73,6 +73,7 @@ class Game():
 
 		for user in self.users:
 			user.coins = 10
+			user.score = 0
 			opponents = [i for i in self.users if i.name != user.name]
 			user.receive_message("game_created", {"opponents": serialize(opponents), "me": serialize(user)})
 
@@ -95,6 +96,7 @@ class Game():
 			self.current_first_user = self.next_user(self.current_first_user)
 			for user in self.users:
 				user.coins += 1
+				user.bid = 0
 
 		self.current_card = random.choice(self.cards)
 		self.current_user = self.current_first_user
@@ -107,6 +109,8 @@ class Game():
 		self.timer.start()
 
 	def switch_player(self):
+		if self.current_user.bid == 0:
+			self.current_user.bid = -1
 		if self.next_user(self.current_user) == self.current_first_user:
 			return self.final_phase()
 
@@ -114,14 +118,30 @@ class Game():
 		self.send_message("switch_player", {"current_user": serialize(self.current_user)})
 
 	def final_phase(self):
-		pass
+		user_winer = max(self.users, key=lambda user: user.bid)
+		if user_winer.bid > 0 and user_winer.coins >= user_winer.bid:
+			user_winer.coins -= user_winer.bid
+			user_winer.score += self.current_card
+			self.send_message("phase_result", {"winer": serialize(self.user_winer),
+												"users": serialize(self.users)})
+			if user_winer.score >= 30:
+				self.finish_game(user_winer)
+		self.new_phase()
 
 	def event(self, data, from_user):
 		if data['event'] == "make_bid":
 			if self.current_user == from_user:
-				# TODO: accept user bid
-				return {"successfully": True}
+				if data['bid'] <= self.current_user.coins:
+					self.current_user.bid = int(data['bid'])
+					self.timer.cancel()
+					self.send_message("user_bid", {"from_user": serialize(self.current_user), "bid": self.current_user.bid})
+					self.switch_player()
+					return {"successfully": True}
 		return {"successfully": False}
+
+	def finish_game(self, winer):
+		# TODO
+		pass
 
 	def send_message(self, event, message):
 		for user in self.users:
