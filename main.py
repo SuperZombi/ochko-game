@@ -30,7 +30,7 @@ def index():
 	if not username or not password:
 		return redirect("/login")
 
-	user_info = get_user(DB, username)
+	user_info = get_user(DB, {"name": username})
 	return render_template('index.html', username=user_info["name"])
 
 
@@ -42,8 +42,7 @@ def register_user():
 	if not username or not password:
 		return jsonify({'successfully': False, 'reason': 'Both username and password are required'})
 
-	existing_user = DB.execute('SELECT * FROM users WHERE name = ?', (username,)).fetchone()
-	
+	existing_user = get_user(DB, {"name": username})
 	if existing_user:
 		return jsonify({'successfully': False, 'target': "username", 'reason': 'Username already exists'})
 
@@ -71,8 +70,7 @@ def login():
 
 	hashed_password = hashlib.md5(password.encode('utf-8')).hexdigest()
 
-	result = DB.execute('SELECT * FROM users WHERE (name = ? AND password = ?)', (username, hashed_password))
-	user = result.fetchone()
+	user = get_user(DB, {"name": username, "password": hashed_password})
 	if user:
 		resp = make_response(jsonify({'successfully': True}))
 		resp.set_cookie('username', username)
@@ -90,8 +88,7 @@ def search_game():
 	if not username or not password:
 		raise ConnectionRefusedError('Unauthorized!')
 
-	result = DB.execute('SELECT * FROM users WHERE (name = ? AND password = ?)', (username, password))
-	user = result.fetchone()
+	user = get_user(DB, {"name": username, "password": password})
 	if not user:
 		raise ConnectionRefusedError('Unauthorized!')
 
@@ -107,7 +104,7 @@ def search_game():
 		room = Room.QUEUE[room_id]
 		room.add(user)
 
-	DB.execute('UPDATE users SET room_id = ? WHERE (name = ? AND password = ?)', (room_id, username, password))
+	DB.execute('UPDATE users SET room_id = ? WHERE (name = ? AND password = ?)', (room_id, username, password), commit=True)
 	emit("connected", room_id, room=request.sid)
 
 
@@ -116,19 +113,16 @@ def disconnect():
 	username = request.cookies.get("username")
 	password = request.cookies.get('password')
 
-	result = DB.execute('SELECT * FROM users WHERE (name = ? AND password = ?)', (username, password))
-	user = result.fetchone()
+	user = get_user(DB, {"name": username, "password": password})
 	if user:
+		DB.execute('UPDATE users SET room_id = NULL WHERE (name = ? AND password = ?)', (username, password), commit=True)
 		room = Room.QUEUE[user["room_id"]]
 		if room:
 			room.remove(request.sid)
-			DB.execute('UPDATE users SET room_id = NULL WHERE (name = ? AND password = ?)', (username, password))
 		else:
 			room = Room.ActiveGames[user["room_id"]]
 			if room:
 				room.remove(request.sid)
-				DB.execute('UPDATE users SET room_id = NULL WHERE (name = ? AND password = ?)', (username, password))
-
 
 
 @socketio.on('event')
@@ -138,8 +132,7 @@ def game_event(data):
 	if not username or not password:
 		raise ConnectionRefusedError('Unauthorized!')
 
-	result = DB.execute('SELECT * FROM users WHERE name = ? AND password = ?', (username, password))
-	user = result.fetchone()
+	user = get_user(DB, {"name": username, "password": password})
 	if not user:
 		raise ConnectionRefusedError('Unauthorized!')
 

@@ -175,8 +175,11 @@ class Database():
 			self.conn.commit()
 		return cursor
 
-def get_user(db, username):
-	result = db.execute('SELECT * FROM users WHERE name = ?', (username,))
+def get_user(db, kargs):
+	condition = " AND ".join(map(lambda x: f"{x} = ?", kargs.keys()))
+	result = db.execute(f'SELECT * FROM users WHERE ({condition})', tuple(kargs.values()))
 	user = result.fetchone()
-	column_names = [column[0] for column in result.description]
-	return dict(zip(column_names, user))
+	if user:
+		column_names = [column[0] for column in result.description]
+		return dict(zip(column_names, user))
+	return {}
