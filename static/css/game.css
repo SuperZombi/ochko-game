@@ -165,6 +165,15 @@
 	min-width: 160px;
 	max-width: 40%;
 	min-height: 240px;
+	position: relative;
+}
+#table #current-card .card::after{
+	content: attr(value);
+	color: white;
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	font-size: 2rem;
 }
 #table .player-bid{
 	background: #890dfb;

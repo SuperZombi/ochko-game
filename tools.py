@@ -34,7 +34,7 @@ class Room():
 		self.id = id_
 		self.users = []
 		self.waitPlayers = True
-		self.timer = Timer(5, self.timerEnd)
+		self.timer = Timer(1, self.timerEnd)
 		self.timer.start()
 
 	def add(self, user):
@@ -75,6 +75,7 @@ class Game():
 		for user in self.users:
 			user.coins = 10
 			user.score = 0
+			user.bid = 0
 			opponents = [i for i in self.users if i.name != user.name]
 			user.receive_message("game_created", {"opponents": serialize(opponents), "me": serialize(user)})
 
@@ -106,17 +107,20 @@ class Game():
 										"current_user": serialize(self.current_user),
 										"users": serialize(self.users)})
 
-		self.timer = Timer(30, self.switch_player)
+		self.timer = Timer(10, self.switch_player)
 		self.timer.start()
 
 	def switch_player(self):
 		if self.current_user.bid == 0:
 			self.current_user.bid = -1
+			self.send_message("user_bid", {"from_user": serialize(self.current_user), "bid": self.current_user.bid})
 		if self.next_user(self.current_user) == self.current_first_user:
 			return self.final_phase()
 
 		self.current_user = self.next_user(self.current_user)
 		self.send_message("switch_player", {"current_user": serialize(self.current_user)})
+		self.timer = Timer(10, self.switch_player)
+		self.timer.start()
 
 	def final_phase(self):
 		user_winer = max(self.users, key=lambda user: user.bid)

@@ -37,6 +37,30 @@ function search_game(){
 		gameFounded = true;
 		main_game(users)
 	});
+	socket.on('new_phase', function(data) {
+		document.querySelector("#current-card .card").setAttribute("value", data.current_card)
+		data.users.forEach(user=>{
+			let el = document.querySelector(`#game-area .player[name="${user.name}"]`)
+			el.score(user.score)
+			el.dibs(user.coins)
+			el.bid(0)
+		})
+
+		let el = document.querySelector(`#game-area .player[name="${data.current_user.name}"]`)
+		el.playerTurn()
+	});
+	socket.on('switch_player', function(data) {
+		let el = document.querySelector(`#game-area .player[name="${data.current_user.name}"]`)
+		el.playerTurn()
+	});
+	socket.on('user_bid', function(data) {
+		let el = document.querySelector(`#game-area .player[name="${data.from_user.name}"]`)
+		el.playerTurnStop()
+		el.bid(data.bid)
+	});
+	socket.on('phase_result', function(data) {
+		console.log(data)
+	});
 }
 
 function searchTimer(){
@@ -73,8 +97,8 @@ function add_user(user){
 			<img src="${user.avatar}">
 			<span>${user.name}</span>
 		</div>
-		<div class="player-cards" value="0" max="30"></div>
-		<div class="player-dibs" value="10"></div>
+		<div class="player-cards" value="${user.score}" max="30"></div>
+		<div class="player-dibs" value="${user.coins}"></div>
 	`
 	document.querySelector("#game-area").appendChild(el)
 
@@ -82,34 +106,34 @@ function add_user(user){
 	bid.className = "player-bid"
 	document.querySelector("#game-area #table").appendChild(bid)
 
-	el.cards = val=>{el.querySelector(".player-cards").setAttribute("value", val)}
+	el.score = val=>{el.querySelector(".player-cards").setAttribute("value", val)}
 	el.dibs = val=>{el.querySelector(".player-dibs").setAttribute("value", val)}
 	el.bid = val=>{
 		if (val == 0){bid.innerHTML = ""}
-		if (val == -1){bid.innerHTML = "X"}
+		else if (val == -1){bid.innerHTML = "X"}
 		else{bid.innerHTML = val}
 	}
 
 	let playerTurnAnimation;
-	el.playerTurn = _=>{
+	el.playerTurn = function(full_seconds=10){
+		let start_time = new Date().getTime()
+		let target_time = start_time + (full_seconds * 1000)
 		bid.classList.add("waiting")
 		bid.innerHTML = "..."
-
-		let full_seconds = 30;
-		function renderTimer(remaining){
-			let percent = (remaining * 100) / (full_seconds * 1000);
-			bid.style.setProperty('--percent', percent + "%");
-			if (remaining > 0){
-				playerTurnAnimation = setTimeout(_=>{
-					renderTimer(remaining - 50)
-				}, 50)
+		function renderTimer(){
+			let current_time = new Date().getTime()
+			if (current_time <= target_time){
+				let remaining = target_time - current_time;
+				let percent = (remaining * 100) / (full_seconds * 1000);
+				bid.style.setProperty('--percent', percent + "%");
+				playerTurnAnimation = window.requestAnimationFrame(renderTimer)
 			}
 		}
-		renderTimer(full_seconds * 1000)
+		window.requestAnimationFrame(renderTimer)
 	}
 	el.playerTurnStop = _=>{
 		if (playerTurnAnimation){
-			clearTimeout(playerTurnAnimation)
+			window.cancelAnimationFrame(playerTurnAnimation);
 			bid.classList.remove("waiting")
 			bid.innerHTML = ""
 			bid.style.removeProperty('--percent');

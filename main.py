@@ -116,11 +116,11 @@ def disconnect():
 	user = get_user(DB, {"name": username, "password": password})
 	if user:
 		DB.execute('UPDATE users SET room_id = NULL WHERE (name = ? AND password = ?)', (username, password), commit=True)
-		room = Room.QUEUE[user["room_id"]]
+		room = Room.QUEUE.get(user["room_id"])
 		if room:
 			room.remove(request.sid)
 		else:
-			room = Room.ActiveGames[user["room_id"]]
+			room = Room.ActiveGames.get(user["room_id"])
 			if room:
 				room.remove(request.sid)
 
