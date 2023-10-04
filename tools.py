@@ -68,6 +68,7 @@ class Room():
 class Game():
 	cards = [6, 7, 8, 9, 10, 11, 12]
 	def __init__(self, room):
+		self.timeout = 20 #sec
 		self.id = room.id
 		self.init_users = room.users
 		self.users = room.users
@@ -107,7 +108,7 @@ class Game():
 										"current_user": serialize(self.current_user),
 										"users": serialize(self.users)})
 
-		self.timer = Timer(10, self.switch_player)
+		self.timer = Timer(self.timeout, self.switch_player)
 		self.timer.start()
 
 	def switch_player(self):
@@ -119,7 +120,7 @@ class Game():
 
 		self.current_user = self.next_user(self.current_user)
 		self.send_message("switch_player", {"current_user": serialize(self.current_user)})
-		self.timer = Timer(10, self.switch_player)
+		self.timer = Timer(self.timeout, self.switch_player)
 		self.timer.start()
 
 	def final_phase(self):
@@ -127,10 +128,10 @@ class Game():
 		if user_winer.bid > 0 and user_winer.coins >= user_winer.bid:
 			user_winer.coins -= user_winer.bid
 			user_winer.score += self.current_card
-			self.send_message("phase_result", {"winer": serialize(self.user_winer),
+			self.send_message("phase_result", {"winer": serialize(user_winer),
 												"users": serialize(self.users)})
 			if user_winer.score >= 30:
-				self.finish_game(user_winer)
+				return self.finish_game(user_winer)
 		self.new_phase()
 
 	def event(self, data, from_user):
@@ -145,12 +146,11 @@ class Game():
 		return {"successfully": False}
 
 	def finish_game(self, winer):
-		# TODO
-		pass
+		self.send_message("game_end", {"winer": serialize(winer), "users": serialize(self.users)})
 
 	def remove(self, user_id):
 		target_user = self.contains(User("", user_id))
-		if self.current_user.id == target_user.id:
+		if target_user and self.current_user.id == target_user.id:
 			self.timer.cancel()
 			self.switch_player()
 		self.send_message("user_leave", {"from_user": serialize(target_user)})

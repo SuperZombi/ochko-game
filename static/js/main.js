@@ -6,6 +6,27 @@ window.onload = _=>{
 			document.querySelector("#wrapper").classList.remove("scrolled")
 		}
 	})
+	let bid_input = document.querySelector("#bid-maker input")
+	document.querySelectorAll("#bid-maker .controls span").forEach(control=>{
+		control.onclick = _=>{
+			let action = control.getAttribute("action")
+			let current = parseInt(bid_input.value)
+			if (action == "up"){
+				bid_input.stepUp();
+			}
+			else if (action == "down"){
+				bid_input.stepDown();
+			}
+		}
+	})
+	document.querySelector("#bid-maker #confirm").onclick = _=>{
+		let value = parseInt(bid_input.value)
+		if (value == parseInt(document.querySelector("#bid-maker input").getAttribute("min"))){
+			socket.emit("event", {event: "make_bid", "bid": -1})
+		} else{
+			socket.emit("event", {event: "make_bid", "bid": value})
+		}
+	}
 	// main_game({"me": {"name": "User 1"},
 	// 		   "opponents": [{"name": "User 2"}, {"name": "User 3"}, {"name": "User 4"}]
 	// })
@@ -45,21 +66,43 @@ function search_game(){
 			el.dibs(user.coins)
 			el.bid(0)
 		})
+		document.querySelector("#bid-maker").classList.add("hide")
+		document.querySelector("#bid-maker input").setAttribute("min", 0)
+		document.querySelector("#bid-maker input").value = 0
 
 		let el = document.querySelector(`#game-area .player[name="${data.current_user.name}"]`)
 		el.playerTurn()
+		if (el.getAttribute("me")){
+			let input = document.querySelector("#bid-maker input")
+			input.setAttribute("max", data.current_user.coins)
+			document.querySelector("#bid-maker").classList.remove("hide")
+		}
 	});
 	socket.on('switch_player', function(data) {
+		document.querySelector("#bid-maker").classList.add("hide")
 		let el = document.querySelector(`#game-area .player[name="${data.current_user.name}"]`)
 		el.playerTurn()
+		if (el.getAttribute("me")){
+			let input = document.querySelector("#bid-maker input")
+			input.setAttribute("max", data.current_user.coins)
+			document.querySelector("#bid-maker").classList.remove("hide")
+		}
 	});
 	socket.on('user_bid', function(data) {
 		let el = document.querySelector(`#game-area .player[name="${data.from_user.name}"]`)
 		el.playerTurnStop()
 		el.bid(data.bid)
+		if (data.bid > 0){
+			document.querySelector("#bid-maker input").setAttribute("min", data.bid)
+			document.querySelector("#bid-maker input").value = data.bid
+		}
 	});
 	socket.on('phase_result', function(data) {
-		console.log(data)
+		// console.log(data)
+	});
+	socket.on('game_end', function(data) {
+		// console.log(data)
+		alert("Winer: " + data.winer)
 	});
 }
 
@@ -84,7 +127,8 @@ function searchTimer(){
 function main_game(users){
 	document.querySelector("#profile-area").classList.add("hide")
 	document.querySelector("#game-area").classList.remove("hide")
-	add_user(users.me)
+	let div = add_user(users.me)
+	div.setAttribute("me", true)
 	users.opponents.forEach(add_user)
 }
 
@@ -115,7 +159,7 @@ function add_user(user){
 	}
 
 	let playerTurnAnimation;
-	el.playerTurn = function(full_seconds=10){
+	el.playerTurn = function(full_seconds=20){
 		let start_time = new Date().getTime()
 		let target_time = start_time + (full_seconds * 1000)
 		bid.classList.add("waiting")
@@ -134,9 +178,10 @@ function add_user(user){
 	el.playerTurnStop = _=>{
 		if (playerTurnAnimation){
 			window.cancelAnimationFrame(playerTurnAnimation);
-			bid.classList.remove("waiting")
-			bid.innerHTML = ""
-			bid.style.removeProperty('--percent');
 		}
+		bid.classList.remove("waiting")
+		bid.innerHTML = ""
+		bid.style.removeProperty('--percent');
 	}
+	return el
 }

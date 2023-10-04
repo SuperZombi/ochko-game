@@ -138,7 +138,7 @@ def game_event(data):
 
 	result = {"successfully": False, 'reason': "Room does not exist!"}
 
-	room = Room.ActiveGames[data['room']]
+	room = Room.ActiveGames.get(user["room_id"])
 	if room:
 		user = User(username, request.sid)
 		user_exists = room.contains(user)

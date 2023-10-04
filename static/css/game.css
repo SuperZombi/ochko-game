@@ -171,8 +171,8 @@
 	content: attr(value);
 	color: white;
 	position: absolute;
-	top: 10px;
-	right: 10px;
+	top: 5px;
+	right: 5px;
 	font-size: 2rem;
 }
 #table .player-bid{
@@ -214,6 +214,55 @@
 	grid-row-start: 1;
 	grid-row-end: 4;
 	margin-right: clamp(10px, 10%, 20px);
+}
+
+#bid-maker {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	margin: 10px;
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	user-select: none;
+}
+#bid-maker.hide{
+	visibility: hidden;
+}
+#bid-maker input[type=number]::-webkit-inner-spin-button,
+#bid-maker input[type=number]::-webkit-outer-spin-button{
+	-webkit-appearance: none;
+	margin: 0;
+}
+#bid-maker input[type=number]{
+	width: 50px;
+	height: 50px;
+	text-align: center;
+	border-radius: 50px;
+	background: #890dfb;
+	color: white;
+	border: none;
+	font-size: 1.5rem;
+	pointer-events: none;
+}
+#bid-maker .controls{
+	display: flex;
+	flex-direction: column;
+}
+#bid-maker .controls > *{
+	cursor: pointer;
+	transition: 0.15s;
+	font-size: 1.25rem;
+}
+#bid-maker .controls > *:hover{
+	color: #890dfb;
+}
+#bid-maker #confirm{
+	transition: 0.15s;
+	cursor: pointer;
+}
+#bid-maker #confirm:hover{
+	color: #890dfb;
 }
 
 
